@@ -25,6 +25,23 @@
 //
 //     let positive_number: u32 = some_string.parse().expect("Failed to parse a number");
 
+use clap::Parser;
+#[derive(Parser, Default, Debug)]
+
+struct Arguments {
+    #[clap(short, long)]
+    command: String,
+
+    #[clap(short, long, default_value_t = 2.0, value_name = "f32")]
+    amount: f32,
+
+    #[clap(short, long)]
+    infile: String,
+
+    #[clap(short, long)]
+    outfile: String,
+}
+
 fn main() {
     // 1. First, you need to implement some basic command-line argument handling
     // so you can make your program do different things.  Here's a little bit
@@ -32,22 +49,30 @@ fn main() {
     //
     // Challenge: If you're feeling really ambitious, you could delete this code
     // and use the "clap" library instead: https://docs.rs/clap/2.32.0/clap/
-    let mut args: Vec<String> = std::env::args().skip(1).collect();
-    if args.is_empty() {
-        print_usage_and_exit();
-    }
-    let subcommand = args.remove(0);
-    match subcommand.as_str() {
+    let myargs = Arguments::parse();
+    println!("{:?}", myargs);
+
+    println!("infile = {}", myargs.infile);
+    println!("command = {} , amount = {}", myargs.command, myargs.amount);
+
+    // let mut args: Vec<String> = std::env::args().skip(1).collect();
+    // if args.is_empty() {
+    //     print_usage_and_exit();
+    // }
+    // let subcommand = args.remove(0);
+    // match subcommand.as_str() {
+    match myargs.command.as_ref() {
         // EXAMPLE FOR CONVERSION OPERATIONS
         "blur" => {
-            if args.len() != 2 {
-                print_usage_and_exit();
-            }
-            let infile = args.remove(0);
-            let outfile = args.remove(0);
+            // if args.len() != 3 {
+            //     print_usage_and_exit();
+            // }
+            // let amount: f32 = args.remove(0).parse().expect("Failed to parse a number");
+            // let infile = args.remove(0);
+            // let outfile = args.remove(0);
             // **OPTION**
             // Improve the blur implementation -- see the blur() function below
-            blur(infile, outfile);
+            blur(myargs.amount, myargs.infile, myargs.outfile);
         }
 
         // **OPTION**
@@ -67,11 +92,11 @@ fn main() {
 
         // A VERY DIFFERENT EXAMPLE...a really fun one. :-)
         "fractal" => {
-            if args.len() != 1 {
-                print_usage_and_exit();
-            }
-            let outfile = args.remove(0);
-            fractal(outfile);
+            // if args.len() != 1 {
+            //     print_usage_and_exit();
+            // }
+            // let outfile = args.remove(0);
+            // fractal(outfile);
         }
 
         // **OPTION**
@@ -93,13 +118,13 @@ fn print_usage_and_exit() {
     std::process::exit(-1);
 }
 
-fn blur(infile: String, outfile: String) {
+fn blur(amount: f32, infile: String, outfile: String) {
     // Here's how you open an existing image file
     let img = image::open(infile).expect("Failed to open INFILE.");
     // **OPTION**
     // Parse the blur amount (an f32) from the command-line and pass it through
     // to this function, instead of hard-coding it to 2.0.
-    let img2 = img.blur(2.0);
+    let img2 = img.blur(amount);
     // Here's how you save an image to a file.
     img2.save(outfile).expect("Failed writing OUTFILE.");
 }
